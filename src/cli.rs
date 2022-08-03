@@ -8,6 +8,10 @@ pub enum Action {
     Project(Project),
     /// Actions upon branches of selected repositories
     Branch(Branch),
+
+    /// Actions upon merge requests of selcted repositories
+    #[structopt(name = "merge-request", alias = "mr")]
+    MergeRequest(MergeRequest),
 }
 #[derive(Debug, StructOpt)]
 pub enum Config {
@@ -57,11 +61,13 @@ pub enum Branch {
     },
 }
 
-#[derive(StructOpt, Debug)]
-#[structopt(name = "config", alias = "c", about = "Config target gitlab")]
-pub struct ConfigCommand {
-    pub url: String,
-    pub token: String,
+#[derive(Debug, StructOpt)]
+pub enum MergeRequest {
+    #[structopt(name = "list", alias = "l", about = "List open merge requets")]
+    List {
+        #[structopt(short, long)]
+        project_id: i32,
+    },
 }
 
 #[derive(Debug, StructOpt)]

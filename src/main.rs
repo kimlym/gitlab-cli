@@ -2,7 +2,7 @@ use structopt::StructOpt;
 
 use crate::{
     api::{CreateBranch, ListBranch, ListProject},
-    cli::{Action::*, Branch, CommandLineArgs, Config, Project},
+    cli::{Action::*, Branch, CommandLineArgs, Config, MergeRequest, Project},
     print::print,
 };
 
@@ -71,6 +71,13 @@ fn main() {
                 )
                 .unwrap();
                 print("New branch created:", vec![new_branch]);
+            }
+        },
+        MergeRequest(merge_request) => match merge_request {
+            MergeRequest::List { project_id } => {
+                let mrege_request_list = api::list_merge_requests(&config, project_id).unwrap();
+
+                print("Merge requests:", mrege_request_list);
             }
         },
     }
