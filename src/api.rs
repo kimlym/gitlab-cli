@@ -81,9 +81,12 @@ pub struct MergeRequest {
     #[tabled(rename = "id")]
     pub iid: i32,
     pub title: String,
+    #[tabled(rename = "source")]
     pub source_branch: String,
+    #[tabled(rename = "target")]
     pub target_branch: String,
     pub author: Author,
+    #[tabled(rename = "project")]
     pub project_id: i32,
     pub state: String,
 }
@@ -120,8 +123,6 @@ pub fn list_merge_requests(
 
 #[cfg(test)]
 mod tests {
-    use crate::print;
-
     use super::*;
 
     #[test]

@@ -37,7 +37,7 @@ fn main() {
                 )
                 .unwrap();
 
-                print("Projects:", project_list);
+                print("Projects", project_list);
             }
         },
         Branch(branch) => match branch {
@@ -54,7 +54,7 @@ fn main() {
                 )
                 .unwrap();
 
-                print("Branch list:", branch_list);
+                print("Branch List", branch_list);
             }
             Branch::Create {
                 project_id,
@@ -70,14 +70,14 @@ fn main() {
                     },
                 )
                 .unwrap();
-                print("New branch created:", vec![new_branch]);
+                print("New Branch Created", vec![new_branch]);
             }
         },
         MergeRequest(merge_request) => match merge_request {
             MergeRequest::List { project_id } => {
                 let mrege_request_list = api::list_merge_requests(&config, project_id).unwrap();
 
-                print("Merge requests:", mrege_request_list);
+                print("Merge Requests", mrege_request_list);
             }
         },
     }
