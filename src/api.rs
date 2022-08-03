@@ -78,15 +78,14 @@ pub fn create_branch(config: &GitlabConfig, branch: CreateBranch) -> Result<Bran
 
 #[derive(Debug, Serialize, Deserialize, Tabled)]
 pub struct MergeRequest {
-    pub id: i32,
+    #[tabled(rename = "id")]
+    pub iid: i32,
     pub title: String,
-    pub description: String,
     pub source_branch: String,
     pub target_branch: String,
     pub author: Author,
     pub project_id: i32,
     pub state: String,
-    pub created_at: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
