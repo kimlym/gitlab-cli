@@ -40,7 +40,7 @@ mod tests {
     fn read_not_existed_should_error() {
         let path = "./resources/not_existed.txt";
         match read_file(path) {
-            Error => assert!(true),
+            Err(_) => assert!(true),
             _ => println!("ignroed"),
         };
     }

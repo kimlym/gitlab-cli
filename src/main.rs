@@ -1,3 +1,6 @@
+use std::env::var;
+
+use config::Configator;
 use structopt::StructOpt;
 
 use crate::{
@@ -8,23 +11,35 @@ use crate::{
 
 mod api;
 mod cli;
+mod config;
 mod file;
-mod gitlab;
 mod print;
+
+fn get_config_fil_path() -> String {
+    format!("{}/.gitlab-cli/config.json", var("HOME").unwrap())
+}
 
 fn main() {
     let args = CommandLineArgs::from_args();
+    let config_path = get_config_fil_path();
+    let configator = Configator::new(&config_path);
 
-    let config = gitlab::read_config();
+    let config = configator.read_config();
 
     match args.action {
         Config(config) => match config {
             Config::Display => {
-                println!("{}", serde_json::to_string(&gitlab::read_config()).unwrap());
+                println!(
+                    "{}",
+                    serde_json::to_string(&configator.read_config()).unwrap()
+                );
             }
             Config::Set { url, token } => {
-                gitlab::write_config(gitlab::GitlabConfig { url, token });
-                println!("{}", serde_json::to_string(&gitlab::read_config()).unwrap());
+                configator.write_config(config::GitlabConfig { url, token });
+                println!(
+                    "{}",
+                    serde_json::to_string(&configator.read_config()).unwrap()
+                );
             }
         },
         Project(project) => match project {

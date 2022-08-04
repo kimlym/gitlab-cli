@@ -4,7 +4,7 @@ use reqwest::{blocking::Client, Error};
 use serde::{Deserialize, Serialize};
 use tabled::Tabled;
 
-use crate::gitlab::GitlabConfig;
+use crate::config::GitlabConfig;
 
 pub struct ListProject {
     pub search: String,
