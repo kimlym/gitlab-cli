@@ -1,6 +1,7 @@
 use std::env::var;
 
 use config::Configator;
+use open::that;
 use structopt::StructOpt;
 
 use crate::{
@@ -54,6 +55,10 @@ fn main() {
 
                 print("Projects", project_list);
             }
+            Project::Open { project_id } => {
+                let project = api::get_project(&config, project_id).unwrap();
+                that(project.web_url).unwrap()
+            }
         },
         Branch(branch) => match branch {
             Branch::List {
@@ -90,9 +95,17 @@ fn main() {
         },
         MergeRequest(merge_request) => match merge_request {
             MergeRequest::List { project_id } => {
-                let mrege_request_list = api::list_merge_requests(&config, project_id).unwrap();
+                let merge_request_list = api::list_merge_requests(&config, project_id).unwrap();
 
-                print("Merge Requests", mrege_request_list);
+                print("Merge Requests", merge_request_list);
+            }
+            MergeRequest::Open {
+                project_id,
+                merge_request_iid,
+            } => {
+                let merge_request =
+                    api::get_merge_request(&config, project_id, merge_request_iid).unwrap();
+                that(merge_request.web_url).unwrap();
             }
         },
     }

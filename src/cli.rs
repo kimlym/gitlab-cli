@@ -35,6 +35,11 @@ pub enum Project {
         #[structopt(short, long)]
         search_name: Option<String>,
     },
+    #[structopt(about = "Open your favorite Project in your favorite Browser!")]
+    Open {
+        #[structopt(short, long)]
+        project_id: i32,
+    },
 }
 
 #[derive(Debug, StructOpt)]
@@ -67,6 +72,13 @@ pub enum MergeRequest {
     List {
         #[structopt(short, long)]
         project_id: i32,
+    },
+    #[structopt(alias = "o", about = "Open your MRs in browser")]
+    Open {
+        #[structopt(short, long)]
+        project_id: i32,
+        #[structopt(short, name = "mr-id")]
+        merge_request_iid: i32,
     },
 }
 

@@ -10,10 +10,12 @@ pub struct ListProject {
     pub search: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Tabled)]
+#[derive(Debug, Serialize, Deserialize, Tabled, PartialEq)]
 pub struct Project {
     pub id: i32,
     pub name: String,
+    #[tabled(skip)]
+    pub web_url: String,
 }
 
 // https://docs.gitlab.com/ee/api/projects.html#list-all-projects
@@ -26,6 +28,20 @@ pub fn list_project(config: &GitlabConfig, project: ListProject) -> Result<Vec<P
         .json::<Vec<Project>>()?;
 
     Ok(project_list)
+}
+
+// https://docs.gitlab.com/ee/api/projects.html#get-single-project
+pub fn get_project(config: &GitlabConfig, project_id: i32) -> Result<Project, Error> {
+    let project = Client::new()
+        .get(format!(
+            "{}/{}/{}",
+            config.url, "api/v4/projects", project_id
+        ))
+        .header("PRIVATE-TOKEN", &config.token)
+        .send()?
+        .json::<Project>()?;
+
+    Ok(project)
 }
 
 pub struct ListBranch {
@@ -78,7 +94,7 @@ pub fn create_branch(config: &GitlabConfig, branch: CreateBranch) -> Result<Bran
 
 #[derive(Debug, Serialize, Deserialize, Tabled)]
 pub struct MergeRequest {
-    #[tabled(rename = "id")]
+    #[tabled(rename = "mr id")]
     pub iid: i32,
     pub title: String,
     #[tabled(rename = "source")]
@@ -89,6 +105,8 @@ pub struct MergeRequest {
     #[tabled(rename = "project")]
     pub project_id: i32,
     pub state: String,
+    #[tabled(skip)]
+    pub web_url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -121,6 +139,24 @@ pub fn list_merge_requests(
     Ok(merge_request_list)
 }
 
+// https://docs.gitlab.com/ee/api/merge_requests.html#get-single-mr
+pub fn get_merge_request(
+    config: &GitlabConfig,
+    project_id: i32,
+    merge_request_iid: i32,
+) -> Result<MergeRequest, Error> {
+    let merge_request = Client::new()
+        .get(format!(
+            "{}/{}/{}/{}/{}",
+            config.url, "api/v4/projects", project_id, "merge_requests", merge_request_iid
+        ))
+        .header("PRIVATE-TOKEN", &config.token)
+        .send()?
+        .json::<MergeRequest>()?;
+
+    Ok(merge_request)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -140,6 +176,26 @@ mod tests {
 
         assert_eq!(20, project_list.len());
         println!("{:?}", project_list);
+    }
+
+    #[test]
+    fn should_get_project_work() {
+        let project = get_project(
+            &GitlabConfig {
+                url: String::from("https://gitlab.com"),
+                token: String::from(""),
+            },
+            38276649,
+        )
+        .unwrap();
+
+        let expected = Project {
+            id: 38276649,
+            name: String::from("project-with-new-file-67034aa0efaeb123"),
+            web_url: String::from("https://gitlab.com/gitlab-qa-sandbox-group-3/qa-test-2022-08-02-09-36-20-a3fb36bffdee7599/project-with-new-file-67034aa0efaeb123"),
+        };
+        println!("{:?}", project);
+        assert_eq!(expected, project);
     }
 
     #[test]
@@ -178,14 +234,36 @@ mod tests {
     #[test]
     fn should_list_merge_requests_successfully() {
         let list = list_merge_requests(
-            &&GitlabConfig {
+            &GitlabConfig {
                 url: String::from("https://gitlab.com"),
                 token: String::from(""),
             },
-            38276649,
+            15513260,
         )
         .unwrap();
 
-        assert_eq!(0, list.len());
+        assert_eq!(20, list.len());
+        println!("{:?}", list);
+    }
+
+    #[test]
+    fn should_get_single_merge_request_successfully() {
+        let mr = get_merge_request(
+            &GitlabConfig {
+                url: String::from("https://gitlab.com"),
+                token: String::from(""),
+            },
+            15513260,
+            133,
+        )
+        .unwrap();
+
+        println!("merge: {:?}", mr);
+        if let Some(_mr) = Option::Some(mr) {
+            assert!(true);
+            assert_eq!("Manual job rules", _mr.title);
+        } else {
+            assert!(false);
+        }
     }
 }

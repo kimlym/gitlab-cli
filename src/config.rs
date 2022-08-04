@@ -1,6 +1,6 @@
 use super::file;
 use serde::{Deserialize, Serialize};
-use std::env::var;
+
 
 #[derive(PartialEq, Debug, Serialize, Deserialize)]
 pub struct GitlabConfig {
