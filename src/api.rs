@@ -3,6 +3,7 @@ use std::fmt::{self, Display, Formatter};
 use reqwest::{blocking::Client, Error};
 use serde::{Deserialize, Serialize};
 use tabled::Tabled;
+use terminal_link::Link;
 
 use crate::config::GitlabConfig;
 
@@ -12,10 +13,17 @@ pub struct ListProject {
 
 #[derive(Debug, Serialize, Deserialize, Tabled, PartialEq)]
 pub struct Project {
+    #[tabled(display_with("Self::display_with_url", args))]
     pub id: i32,
     pub name: String,
     #[tabled(skip)]
     pub web_url: String,
+}
+
+impl Project {
+    fn display_with_url(&self) -> String {
+        Link::new(&self.id.to_string(), &self.web_url).to_string()
+    }
 }
 
 // https://docs.gitlab.com/ee/api/projects.html#list-all-projects
@@ -94,7 +102,8 @@ pub fn create_branch(config: &GitlabConfig, branch: CreateBranch) -> Result<Bran
 
 #[derive(Debug, Serialize, Deserialize, Tabled)]
 pub struct MergeRequest {
-    #[tabled(rename = "mr id")]
+    // https://github.com/zhiburt/tabled#format-fields
+    #[tabled(rename = "mr id", display_with("Self::display_with_url", args))]
     pub iid: i32,
     pub title: String,
     #[tabled(rename = "source")]
@@ -107,6 +116,12 @@ pub struct MergeRequest {
     pub state: String,
     #[tabled(skip)]
     pub web_url: String,
+}
+
+impl MergeRequest {
+    fn display_with_url(&self) -> String {
+        Link::new(&self.iid.to_string(), &self.web_url).to_string()
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
