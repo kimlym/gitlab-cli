@@ -59,11 +59,20 @@ pub struct ListBranch {
 
 #[derive(Debug, Serialize, Deserialize, Tabled)]
 pub struct Branch {
+    #[tabled(display_with("Self::display_with_url", args))]
     pub name: String,
     pub merged: bool,
     pub protected: bool,
     pub developers_can_push: bool,
     pub developers_can_merge: bool,
+    #[tabled(skip)]
+    pub web_url: String,
+}
+
+impl Branch {
+    fn display_with_url(&self) -> String {
+        Link::new(&self.name.to_string(), &self.web_url).to_string()
+    }
 }
 
 pub fn list_branch(config: &GitlabConfig, branch: ListBranch) -> Result<Vec<Branch>, Error> {
@@ -174,6 +183,8 @@ pub fn get_merge_request(
 
 #[cfg(test)]
 mod tests {
+    use crate::print;
+
     use super::*;
 
     #[test]
@@ -190,7 +201,7 @@ mod tests {
         .unwrap();
 
         assert_eq!(20, project_list.len());
-        println!("{:?}", project_list);
+        print("project list", project_list);
     }
 
     #[test]
@@ -221,14 +232,14 @@ mod tests {
                 token: String::from(""),
             },
             ListBranch {
-                id: 38276649,
+                id: 39677456,
                 search: String::from(""),
             },
         )
         .unwrap();
 
         assert_eq!(1, branch_list.len());
-        println!("{:?}", branch_list);
+        print("branch list", branch_list);
     }
 
     #[test]
